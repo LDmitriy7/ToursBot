@@ -1,8 +1,9 @@
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, ForceReply
 
-from misc import db, dp
+from misc import db, dp, bot
 from utils.keyboards import make_keyboard, search_keyboard, make_calendar
 import re
+from other import texts
 
 
 async def ask_next(user_id, query: CallbackQuery):
@@ -53,13 +54,21 @@ async def search(query: CallbackQuery):
         await ask_next(user_id, query)
 
 
+@dp.callback_query_handler(lambda query: re.search('set_price', query.data))
+async def set_price(query: CallbackQuery):
+    user_id = query.from_user.id
+    data = query.data.split(':')[-1]
+    if data == 'set_price':
+        await bot.send_message(user_id, texts.set_price, reply_markup=ForceReply())
+    else:
+        await bot.send_message(user_id, texts.set_priceTo, reply_markup=ForceReply())
+
+
 @dp.callback_query_handler()
 async def save_and_ask(query: CallbackQuery):
     """Сохраняет выбранные данные и заадает следующий вопрос"""
-    print(query.data)
     user_id = query.from_user.id
     field, data = query.data.split(':')
-
     db.update_user(user_id, {field: data})
     await query.answer('Выбрано')
     await ask_next(user_id, query)

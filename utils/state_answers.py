@@ -42,7 +42,9 @@ def get_adults(*args):
 
 def get_kid_ages(*args):
     KIDS_AGES = range(1, 18)
-    return zip(KIDS_AGES, KIDS_AGES)
+    yield 'Без ребенка', 'any'
+    for i in KIDS_AGES:
+        yield i, i
 
 
 def get_food(*args):
@@ -76,6 +78,16 @@ def get_beach_lines(*args):
     yield 'любая линия', 'any'
 
 
+def get_price(*args):
+    yield 'Задать цену ОТ', 'set_price'
+    yield 'Любая', 'any'
+
+
+def get_priceTo(*args):
+    yield 'Задать цену ДО', 'set_priceTo'
+    yield 'Любая', 'any'
+
+
 # карта состояний и наборов ответов
 states_map = {
     'country': get_countries,
@@ -94,8 +106,8 @@ states_map = {
     'stars': get_stars,
     'starsTo': get_startTo,
     'beach_line': get_beach_lines,
-    'price': '',
-    'priceTo': '',
+    'price': get_price,
+    'priceTo': get_priceTo,
 }
 assert len(states_map) == len(ALL_STATES)
 
