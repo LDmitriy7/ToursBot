@@ -38,6 +38,8 @@ foodTo = State('foodTo', 'Категория питания ДО')
 stars = State('stars', 'Категория отеля ОТ')
 starsTo = State('starsTo', 'Категория отеля ДО')
 
+beach_line = State('beach_line', 'Выберите линию пляжа')
+
 price = State('price', 'Стоимость тура ОТ')
 priceTo = State('priceTo', 'Стоимость тура ДО')
 
