@@ -4,6 +4,7 @@ from misc import db, dp, bot
 from utils.keyboards import make_keyboard, search_keyboard, make_calendar
 import re
 from other import texts
+from utils.api_search import get_search_json
 
 
 async def ask_next(user_id, query: CallbackQuery):
@@ -49,6 +50,7 @@ async def search(query: CallbackQuery):
     next_state = db.get_next_state(user_id)
     if next_state is None:
         await query.answer('Ожидайте')
+        get_search_json(user_id)
     else:
         await query.answer('Ответьте на все вопросы!')
         await ask_next(user_id, query)

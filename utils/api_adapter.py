@@ -1,4 +1,4 @@
-"""Содержит функции для модуля state_answers, работающие конкретно с API otpusk.com"""
+"""Содержит функции, работающие конкретно с API otpusk.com"""
 from misc import db
 import requests
 from config import OTPUSK_API_TOKEN

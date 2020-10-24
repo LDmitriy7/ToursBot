@@ -75,7 +75,7 @@ def get_startTo(user_id: int):
 def get_beach_lines(*args):
     yield '1-я линия', 1
     yield 'до 2-й линии', 2
-    yield 'любая линия', 'any'
+    yield 'любая линия', 3
 
 
 def get_price(*args):
