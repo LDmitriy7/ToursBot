@@ -69,6 +69,13 @@ async def save_and_ask(query: CallbackQuery):
     """Сохраняет выбранные данные и заадает следующий вопрос"""
     user_id = query.from_user.id
     field, data = query.data.split(':')
+
+    # пропускаем повторный выбор детей
+    if field in ['kid1', 'kid2'] and data == 'any':
+        db.update_user(user_id, {'kid3': 'any'})
+        if field == 'kid1':
+            db.update_user(user_id, {'kid2': 'any'})
+
     db.update_user(user_id, {field: data})
     await query.answer('Выбрано')
     await ask_next(user_id, query)
