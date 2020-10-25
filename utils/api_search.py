@@ -66,15 +66,16 @@ def form_params(user_id: int, page):
 
 
 async def get_search_results(user_id: int, page):
-    form_params(user_id, page)
-
+    params = form_params(user_id, page)
     for n in range(7):
         resp = s.get(BASE_URL, params={'number': n})
         resp_data = resp.json()
         try:
             hotels = resp_data['hotels'][str(page)]
             for result in parse_tours(hotels):
-                yield result
+                params['h_id'] = result[-1]
+                params['offer_id'] = result[-2]
+                yield result[:-1], params
         except (KeyError, TypeError):
             await sleep(6)
         if resp_data['lastResult']:
@@ -108,4 +109,4 @@ def parse_tours(hotels_json):
         except (KeyError, TypeError):
             continue
 
-        yield photo, country, city, h_name, stars, food, date, nights, dept_city, price, adults, kids, offer_id
+        yield photo, country, city, h_name, stars, food, date, nights, dept_city, price, adults, kids, offer_id, h_id

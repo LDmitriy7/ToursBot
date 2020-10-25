@@ -3,8 +3,7 @@ from aiogram.types import Message
 from misc import db, dp, bot
 from other import texts
 from utils.keyboards import make_keyboard, search_keyboard
-
-PRIVATE_CHAT_ID = 724477101
+from config import PRIVATE_CHAT_ID
 
 
 @dp.message_handler(commands='start')

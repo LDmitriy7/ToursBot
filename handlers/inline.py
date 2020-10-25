@@ -1,11 +1,12 @@
 from aiogram.types import CallbackQuery, ForceReply
 
 from misc import db, dp, bot
-from utils.keyboards import make_keyboard, search_keyboard, make_calendar
+from utils.keyboards import make_keyboard, search_keyboard, make_calendar, results_keyboard
 import re
 from other import texts
 from utils.api_search import get_search_results
 from asyncio import sleep
+from config import PRIVATE_CHAT_ID
 
 
 async def ask_next(user_id, query: CallbackQuery):
@@ -16,6 +17,15 @@ async def ask_next(user_id, query: CallbackQuery):
         await msg.edit_text('Заявка заполнена', reply_markup=search_keyboard())
     else:
         await msg.edit_text(next_state.question, reply_markup=make_keyboard(user_id, next_state))
+
+
+@dp.callback_query_handler(lambda query: re.search('ask_manager', query.data))
+async def ask_manager(query: CallbackQuery):
+    """Сообщает менеджерам о запросе"""
+    user_id = query.from_user.id
+    offer_id = query.data.split(':')[-1]
+    await bot.send_message(user_id, 'Менеджер скоро свяжется с вами')
+    await bot.send_message(PRIVATE_CHAT_ID, f'{user_id}: хочет задать вопрос по туру {offer_id}')
 
 
 @dp.callback_query_handler(lambda query: re.search('error', query.data))
@@ -54,12 +64,12 @@ async def search(query: CallbackQuery):
         await query.answer('Ожидайте')
 
         switcher = False
-        async for result in get_search_results(user_id, page):
+        async for result, params in get_search_results(user_id, page):
             await sleep(.5)
             switcher = True
             photo, text = texts.search_results(*result)
-            print(photo)
-            await bot.send_photo(user_id, photo, text)
+            # print(photo)
+            await bot.send_photo(user_id, photo, text, reply_markup=results_keyboard(params))
         if switcher:
             await bot.send_message(user_id, 'Показать еще?', reply_markup=search_keyboard(int(page) + 1))
         else:
