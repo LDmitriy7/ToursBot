@@ -4,7 +4,8 @@ from misc import db, dp, bot
 from utils.keyboards import make_keyboard, search_keyboard, make_calendar
 import re
 from other import texts
-from utils.api_search import get_search_json
+from utils.api_search import get_search_results
+from asyncio import sleep
 
 
 async def ask_next(user_id, query: CallbackQuery):
@@ -43,14 +44,26 @@ async def flip_calendar(query: CallbackQuery):
     await msg.edit_text(msg.text, reply_markup=make_calendar(user_id, last_state, year_and_month))
 
 
-@dp.callback_query_handler(lambda query: query.data == 'search')
+@dp.callback_query_handler(lambda query: re.match(r'search:\d', query.data))
 async def search(query: CallbackQuery):
     """Начинает поиск результатов"""
     user_id = query.from_user.id
     next_state = db.get_next_state(user_id)
+    page = query.data.split(':')[-1]
     if next_state is None:
         await query.answer('Ожидайте')
-        get_search_json(user_id)
+
+        switcher = False
+        async for result in get_search_results(user_id, page):
+            await sleep(.5)
+            switcher = True
+            photo, text = texts.search_results(*result)
+            print(photo)
+            await bot.send_photo(user_id, photo, text)
+        if switcher:
+            await bot.send_message(user_id, 'Показать еще?', reply_markup=search_keyboard(int(page) + 1))
+        else:
+            await bot.send_message(user_id, 'Нет результатов')
     else:
         await query.answer('Ответьте на все вопросы!')
         await ask_next(user_id, query)

@@ -18,10 +18,10 @@ def make_keyboard(user_id: int, state: State):
     return keyboard
 
 
-def search_keyboard():
+def search_keyboard(page=1):
     """Строит клавиатуру для начала поиска"""
     keyboard = InlineKeyboardMarkup()
-    keyboard.row(InlineKeyboardButton('Начать поиск', callback_data='search'))
+    keyboard.row(InlineKeyboardButton('Начать поиск', callback_data=f'search:{page}'))
     keyboard.row(InlineKeyboardButton('Вернуться назад', callback_data='back'))
     return keyboard
 

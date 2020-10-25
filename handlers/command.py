@@ -1,8 +1,10 @@
 from aiogram.types import Message
 
-from misc import db, dp
+from misc import db, dp, bot
 from other import texts
 from utils.keyboards import make_keyboard, search_keyboard
+
+PRIVATE_CHAT_ID = 724477101
 
 
 @dp.message_handler(commands='start')
@@ -15,9 +17,12 @@ async def start(msg: Message):
 
     next_state = db.get_next_state(user_id)
     await msg.answer(next_state.question, reply_markup=make_keyboard(user_id, next_state))
+    await bot.send_message(PRIVATE_CHAT_ID, f'от {user_id}:')
+    await msg.forward(PRIVATE_CHAT_ID)
 
 
-@dp.message_handler(lambda msg: msg.reply_to_message.text in [texts.set_price, texts.set_priceTo])
+@dp.message_handler(
+    lambda msg: msg.reply_to_message and msg.reply_to_message.text in [texts.set_price, texts.set_priceTo])
 async def set_price(msg: Message):
     user_id = msg.from_user.id
     reply_text = msg.reply_to_message.text

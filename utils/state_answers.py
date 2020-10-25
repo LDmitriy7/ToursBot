@@ -31,7 +31,7 @@ def get_nights(*args):
 
 def get_nights_to(user_id):
     nights = int(db.select_user(user_id)['nights'])
-    NIGHTS_AMOUNT = range(nights, min(nights + 6, 22))
+    NIGHTS_AMOUNT = range(nights, min(nights + 3, 22))
     return zip(NIGHTS_AMOUNT, NIGHTS_AMOUNT)
 
 

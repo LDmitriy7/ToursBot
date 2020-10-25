@@ -2,13 +2,15 @@
 from misc import db
 import requests
 from config import OTPUSK_API_TOKEN
+from asyncio import sleep
 
 BASE_URL = 'https://export.otpusk.com/api/tours/search'
+PHOTO_URL = 'https://newimg.otpusk.com/3/800x600/'
 s = requests.session()
 s.params.update(access_token=OTPUSK_API_TOKEN)
 
 
-def get_search_json(user_id: int):
+def form_params(user_id: int, page):
     u_data = db.select_user(user_id)
     params = s.params
 
@@ -45,15 +47,65 @@ def get_search_json(user_id: int):
     params['stars'] = ','.join(stars_range)
 
     # линия пляжа
-    LINES = ['one_line_beach', 'two_line_beach', 'next_beach_line']
-    lines = LINES[:int(u_data['beach_line'])]
-    params['services'] = ','.join(lines)
+    LINES = ['one_line_beach', 'two_line_beach']
+    u_line = int(u_data['beach_line'])
+    if u_line > 2:
+        params['services'] = None
+    else:
+        lines = LINES[:u_line]
+        params['services'] = ','.join(lines)
 
     # цены
     price, priceTo = u_data['price'], u_data['priceTo']
     params['price'] = None if price == 'any' else price
     params['priceTo'] = None if priceTo == 'any' else priceTo
 
-    resp = s.get(BASE_URL)
-    print(resp.request.url)
-    print(resp.json())
+    # прочее
+    params['page'] = page
+    return params
+
+
+async def get_search_results(user_id: int, page):
+    form_params(user_id, page)
+
+    for n in range(7):
+        resp = s.get(BASE_URL, params={'number': n})
+        resp_data = resp.json()
+        try:
+            hotels = resp_data['hotels'][str(page)]
+            for result in parse_tours(hotels):
+                yield result
+        except (KeyError, TypeError):
+            await sleep(6)
+        if resp_data['lastResult']:
+            print(resp.request.url)
+            break
+
+
+def parse_tours(hotels_json):
+    for h_id in hotels_json:
+        hotel = hotels_json[h_id]
+
+        try:
+            country = hotel['c']['n']
+            city = hotel['t']['n']
+            stars = int(hotel['s'])
+            h_name = hotel['n']
+            photo = PHOTO_URL + hotel['f']
+
+            offers = hotel['offers']
+            offer_id = min(offers, key=lambda o_id: offers[o_id]['pl'])
+            offer = offers[offer_id]
+
+            price = offer['pl']
+            food = offer['f']
+            dept_city = offer['c']
+            date = offer['d']
+            nights = offer['n']
+            adults = offer['a']
+            kids = offer['h']
+
+        except (KeyError, TypeError):
+            continue
+
+        yield photo, country, city, h_name, stars, food, date, nights, dept_city, price, adults, kids, offer_id
