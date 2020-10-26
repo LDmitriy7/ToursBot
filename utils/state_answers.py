@@ -42,7 +42,7 @@ def get_adults(*args):
 
 def get_kid_ages(*args):
     KIDS_AGES = range(1, 18)
-    yield 'Без ребенка', 'any'
+    yield 'Нет ребенка', 'any'
     for i in KIDS_AGES:
         yield i, i
 

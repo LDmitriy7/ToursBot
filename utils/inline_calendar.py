@@ -52,7 +52,7 @@ def iter_calendar(year, month, prev_m, next_m, from_date, to_date):
 
     for days7 in Calendar().monthdatescalendar(year, month):
         for day in days7:
-            if from_date < day <= to_date and day.month == month:
+            if from_date <= day <= to_date and day.month == month:
                 yield day.day, day
             else:
                 yield ' ', 'error'

@@ -62,25 +62,28 @@ def form_params(user_id: int, page):
 
     # прочее
     params['page'] = page
+    params['uniqueHotels'] = 'true'
     return params
 
 
 async def get_search_results(user_id: int, page):
-    params = form_params(user_id, page)
+    params = dict(form_params(user_id, page))
     for n in range(7):
         resp = s.get(BASE_URL, params={'number': n})
         resp_data = resp.json()
-        try:
-            hotels = resp_data['hotels'][str(page)]
-            for result in parse_tours(hotels):
-                params['h_id'] = result[-1]
-                params['offer_id'] = result[-2]
-                yield result[:-1], params
-        except (KeyError, TypeError):
-            await sleep(6)
         if resp_data['lastResult']:
             print(resp.request.url)
+            try:
+                hotels = resp_data['hotels'][str(page)]
+                for result in parse_tours(hotels):
+                    params['h_id'] = result[-1]
+                    params['offer_id'] = result[-2]
+                    yield result[:-1], params
+            except (KeyError, TypeError):
+                pass
             break
+        else:
+            await sleep(6)
 
 
 def parse_tours(hotels_json):
@@ -90,7 +93,7 @@ def parse_tours(hotels_json):
         try:
             country = hotel['c']['n']
             city = hotel['t']['n']
-            stars = int(hotel['s'])
+            stars = int(str(hotel['s'])[0])
             h_name = hotel['n']
             photo = PHOTO_URL + hotel['f']
 
