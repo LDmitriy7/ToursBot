@@ -16,7 +16,7 @@ def get_answers(user_id: int, state: State, **kwargs):
 # функции-ответы
 def get_countries(*args):
     path = dirname(__file__)
-    with open(f'{path}/../other/countries.txt') as fp:
+    with open(f'{path}/../other/countries.txt', encoding='utf8') as fp:
         for row in fp:
             sign, name, c_id, flag = row.split('«**»')
             if sign == '+':

@@ -68,7 +68,6 @@ async def search(query: CallbackQuery):
             await sleep(.5)
             switcher = True
             photo, text = texts.search_results(*result)
-            # print(photo)
             await bot.send_photo(user_id, photo, text, reply_markup=results_keyboard(params))
         if switcher:
             await bot.send_message(user_id, 'Показать еще?', reply_markup=search_keyboard(int(page) + 1))

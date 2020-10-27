@@ -3,7 +3,7 @@ from aiogram.types import Message
 from misc import db, dp, bot
 from other import texts
 from utils.keyboards import make_keyboard, search_keyboard
-from config import PRIVATE_CHAT_ID
+from config import ID_BASE_CHAT_ID
 
 
 @dp.message_handler(commands='start')
@@ -16,8 +16,8 @@ async def start(msg: Message):
 
     next_state = db.get_next_state(user_id)
     await msg.answer(next_state.question, reply_markup=make_keyboard(user_id, next_state))
-    await bot.send_message(PRIVATE_CHAT_ID, f'от {user_id}:')
-    await msg.forward(PRIVATE_CHAT_ID)
+    await bot.send_message(ID_BASE_CHAT_ID, f'от {user_id}:')
+    await msg.forward(ID_BASE_CHAT_ID)
 
 
 @dp.message_handler(
