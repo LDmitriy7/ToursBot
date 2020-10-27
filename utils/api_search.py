@@ -63,6 +63,7 @@ def form_params(user_id: int, page):
     # прочее
     params['page'] = page
     params['uniqueHotels'] = 'true'
+    params['group'] = '1'
     return params
 
 
