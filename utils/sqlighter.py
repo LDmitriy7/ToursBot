@@ -43,6 +43,11 @@ class DataBase:
         fields = self.select_user(user_id)
         previous = None
 
+        # если по какой-то причине пользователя нет в базе
+        if fields is None:
+            self.insert_user(user_id)
+        fields = self.select_user(user_id)
+
         for state, field in zip(ALL_STATES, fields[1:]):
             if field is None or field == '':
                 return previous if get_previous else state
