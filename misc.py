@@ -2,7 +2,7 @@ from os.path import dirname
 
 from aiogram import Bot, Dispatcher
 
-from config import BOT_TOKEN
+from other.config import BOT_TOKEN
 from utils.sqlighter import DataBase
 
 bot = Bot(BOT_TOKEN)

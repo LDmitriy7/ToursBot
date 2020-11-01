@@ -12,7 +12,8 @@ set_price = 'Введите цену ОТ (в гривнах):'
 set_priceTo = 'Введите цену ДО (в гривнах):'
 
 
-def search_results(photo, country, city, h_name, stars, food, date, nights, dept_city, price, adults, kids, offer_id):
+def search_results(country, city, h_name, stars, food, date, nights, dept_city, price, adults, kids, offer_id,
+                   **kwargs):
     """Возвращает фото и текст для результата поиска"""
 
     result = f"""
@@ -23,7 +24,7 @@ def search_results(photo, country, city, h_name, stars, food, date, nights, dept
 💰 {price} грн. за {adults} взр. + {kids} реб.
 ID: {offer_id}
 """
-    return photo, result
+    return result
 
 
 def get_nights_word(nights):

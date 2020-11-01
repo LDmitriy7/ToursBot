@@ -1,7 +1,7 @@
 """Содержит функции, работающие конкретно с API otpusk.com"""
 from misc import db
 import requests
-from config import OTPUSK_API_TOKEN
+from other.config import OTPUSK_API_TOKEN
 
 BASE_URL = 'https://export.otpusk.com/api/tours'
 s = requests.session()
@@ -21,7 +21,8 @@ def get_cities(user_id: int):
 
 def get_fromCities(user_id: int):
     url = BASE_URL + '/fromCities'
-    country, city = db.select_user(user_id)[1:3]
+    user_data = db.select_user(user_id)
+    country, city = user_data['country'], user_data['city']
     geo_id = country if city == 'any' else city
     resp = s.get(url, params={'geoId': geo_id})
     from_cities = resp.json()['fromCities']

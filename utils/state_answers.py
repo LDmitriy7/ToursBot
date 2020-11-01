@@ -18,7 +18,7 @@ def get_countries(*args):
     path = dirname(__file__)
     with open(f'{path}/../other/countries.txt', encoding='utf8') as fp:
         for row in fp:
-            sign, name, c_id, flag = row.split('«**»')
+            sign, name, c_id, flag = row.split(';')
             if sign == '+':
                 name = f'{name} {flag.strip()}'
                 yield name, c_id

@@ -23,9 +23,9 @@ class DataBase:
         result = self.engine.execute(cmd)
         return result.fetchone()
 
-    def insert_user(self, values: dict):
+    def insert_user(self, user_id: int):
         table = self.table
-        cmd = table.insert(values=values)
+        cmd = table.insert(values={'id': user_id})
         self.engine.execute(cmd)
 
     def update_user(self, user_id: int, values: dict):

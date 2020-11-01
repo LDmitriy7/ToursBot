@@ -44,12 +44,9 @@ def make_calendar(user_id: int, state: State, year_month: str = None):
     return keyboard
 
 
-def results_keyboard(params):
-    p = params
-    url = f'http://otpusk24.com.ua#!f={p["nights"]}&l={p["nights"]}&i={p["h_id"]}&hid={p["h_id"]}&p={p["people"]}&d={p["from"]}&oid={p["offer_id"]}&page=tour&c={p["checkIn"]}&v={p["checkIn"]}&o={p["food"]}'
-
+def results_keyboard(url, offer_id):
     keyboard = InlineKeyboardMarkup()
-    manager_button = InlineKeyboardButton('Задать вопрос', callback_data=f'ask_manager:{p["offer_id"]}')
+    manager_button = InlineKeyboardButton('Задать вопрос', callback_data=f'ask_manager:{offer_id}')
     site_button = InlineKeyboardButton('На сайт', url=url)
     keyboard.insert(manager_button)
     keyboard.insert(site_button)

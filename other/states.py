@@ -3,18 +3,18 @@
 
 class State:
     """Состояние бота: название и вопрос и ответы
-    ! каждый ответ должен быть уже итерируемым объектом, либо функцией
+    ! ответы должны быть уже итерируемыми объектами, либо функцией
     ! каждый ответ - кортеж: (текст, данные)"""
     instances = []
 
     def __init__(self, name: str, question: str):
         self.name = name
         self.question = question
-        self.answers = []
+        self.answers = None
         State.instances.append(self)
 
     def __str__(self):
-        return f'State({self.name}, {self.question}): {self.answers}'
+        return f'State({self.name}, {self.question})'
 
 
 country = State('country', 'Выберите страну')

@@ -1,7 +1,7 @@
 """Модуль для запросов к апи на подбор туров"""
 from misc import db
 import requests
-from config import OTPUSK_API_TOKEN
+from other.config import OTPUSK_API_TOKEN
 from asyncio import sleep
 
 BASE_URL = 'https://export.otpusk.com/api/tours/search'
@@ -11,8 +11,9 @@ s.params.update(access_token=OTPUSK_API_TOKEN)
 
 
 def form_params(user_id: int, page):
+    """Формирует параметры для запроса к API"""
     u_data = db.select_user(user_id)
-    params = s.params
+    params = {}
 
     # города, страны
     country, city = u_data['country'], u_data['city']
@@ -62,24 +63,26 @@ def form_params(user_id: int, page):
 
     # прочее
     params['page'] = page
-    params['uniqueHotels'] = 'true'
-    params['group'] = '1'
+    params['uniqueHotels'] = True
+    params['group'] = 1
     return params
 
 
 async def get_search_results(user_id: int, page):
-    params = dict(form_params(user_id, page))
+    """Возвращает словари и ссылки на сайт для результатов"""
+    params = form_params(user_id, page)
     for n in range(7):
-        resp = s.get(BASE_URL, params={'number': n})
-        resp_data = resp.json()
-        if resp_data['lastResult']:
+        params['number'] = n
+        resp = s.get(BASE_URL, params=params)
+        r_data = resp.json()
+        if r_data['lastResult']:
             print(resp.request.url)
             try:
-                hotels = resp_data['hotels'][str(page)]
-                for result in parse_tours(hotels):
-                    params['h_id'] = result[-1]
-                    params['offer_id'] = result[-2]
-                    yield result[:-1], params
+                hotels = r_data['hotels'][str(page)]
+                for r in parse_tours(hotels):
+                    p = params
+                    site_url = f'http://otpusk24.com.ua#!f={p["nights"]}&l={p["nights"]}&i={r["h_id"]}&hid={r["h_id"]}&p={p["people"]}&d={p["from"]}&oid={r["offer_id"]}&page=tour&c={p["checkIn"]}&v={p["checkIn"]}&o={p["food"]}'
+                    yield r, site_url
             except (KeyError, TypeError):
                 pass
             break
@@ -89,28 +92,30 @@ async def get_search_results(user_id: int, page):
 
 def parse_tours(hotels_json):
     for h_id in hotels_json:
-        hotel = hotels_json[h_id]
-
+        r = {'h_id': h_id}
         try:
-            country = hotel['c']['n']
-            city = hotel['t']['n']
-            stars = int(str(hotel['s'])[0])
-            h_name = hotel['n']
-            photo = PHOTO_URL + hotel['f']
+            r['hotel'] = hotels_json[h_id]
+            hotel = r['hotel']
+            r['country'] = hotel['c']['n']
+            r['city'] = hotel['t']['n']
+            r['stars'] = int(str(hotel['s'])[0])
+            r['h_name'] = hotel['n']
+            r['photo'] = PHOTO_URL + hotel['f']
 
-            offers = hotel['offers']
-            offer_id = min(offers, key=lambda o_id: offers[o_id]['pl'])
-            offer = offers[offer_id]
+            r['offers'] = hotel['offers']
+            offers = r['offers']
+            r['offer_id'] = min(offers, key=lambda o_id: offers[o_id]['pl'])
+            offer = offers[r['offer_id']]
 
-            price = offer['pl']
-            food = offer['f']
-            dept_city = offer['c']
-            date = offer['d']
-            nights = offer['n']
-            adults = offer['a']
-            kids = offer['h']
+            r['price'] = offer['pl']
+            r['food'] = offer['f']
+            r['dept_city'] = offer['c']
+            r['date'] = offer['d']
+            r['nights'] = offer['n']
+            r['adults'] = offer['a']
+            r['kids'] = offer['h']
 
         except (KeyError, TypeError):
             continue
 
-        yield photo, country, city, h_name, stars, food, date, nights, dept_city, price, adults, kids, offer_id, h_id
+        yield r

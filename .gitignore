@@ -2,4 +2,4 @@
 .idea
 users.db
 main.log
-config.py
+other/config.py

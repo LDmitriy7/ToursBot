@@ -5,8 +5,7 @@ from utils.keyboards import make_keyboard, search_keyboard, make_calendar, resul
 import re
 from other import texts
 from utils.api_search import get_search_results
-from asyncio import sleep
-from config import PRIVATE_CHAT_ID
+from other.config import PRIVATE_CHAT_ID
 
 
 async def ask_next(user_id, query: CallbackQuery):
@@ -64,11 +63,11 @@ async def search(query: CallbackQuery):
         await query.answer('Ожидайте')
 
         switcher = False
-        async for result, params in get_search_results(user_id, page):
-            await sleep(.5)
+        async for r, url in get_search_results(user_id, page):
             switcher = True
-            photo, text = texts.search_results(*result)
-            await bot.send_photo(user_id, photo, text, reply_markup=results_keyboard(params))
+            photo = r['photo']
+            text = texts.search_results(**r)
+            await bot.send_photo(user_id, photo, text, reply_markup=results_keyboard(url, r['offer_id']))
         if switcher:
             await bot.send_message(user_id, 'Показать еще?', reply_markup=search_keyboard(int(page) + 1))
         else:
